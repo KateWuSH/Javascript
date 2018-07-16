@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="container2">content2</div>
+
+    <script>
+        // [Alex 宅幹嘛] 不負責任 Javascript 入門觀念提醒 Part1 + Part2
+        /* 
+           1) ES5 用 (function (){})() 匿名函式包住再執行，可以預防資料外洩
+           2) ES6 只要用 {} block scope 包住即可
+           3) 另外，變數要用 let 和 const 包住，用 var 也會外漏
+        */
+        {
+            
+            // var container1 = document.querySelector('#container');
+            // 用 var 一定要有好的使用習慣，例如像先宣告再使用、不能重複宣告 (重複宣告不會報錯)
+            
+            let container1 = document.querySelector('#container');
+
+            let clickHandler = function () {
+                container1.innerHTML = "Kate";
+            }
+
+            container1.innerHTML = 'new content';
+            container1.addEventListener('click', clickHandler)
+
+            let name = 'Kate';
+            let year = 2018;
+            let status = true; // false
+            let sth = null; // undefined
+
+            // 上面是屬於純資料，物件、陣列 => 傳址 傳值
+
+            let newName = name;
+
+            newName = 123;
+
+            console.log(name, newName); // Kate 123 
+            // name 和 newName 是獨立存在不同記憶體，不會互相影響
+
+            // 傳址：把位置丟給你。js 會存一大包東西，如果裡面被修改了，兩個都會跟著變    
+            let person = {
+                name: 'Kate',
+                age: 30,
+                sayHi: function() {
+                    console.log('Hello');
+                    
+                }
+            }
+
+            console.log(person.name);
+            person.sayHi();
+
+            let newPerson = person;
+            newPerson.name = 'xxx';
+            console.log(person, newPerson); // {name: 'xxx'} {name: 'xxx'}
+
+            // 傳值：把內容丟給你，js 會複製一份，所以其中一個被修改了，另一個不會變
+
+            let a = 1;
+            let b = a;
+            b = 2;
+            console.log(a, b); // 1 2
+            
+            
+
+            let ary = ['kate', 'Ben', 'Patty'];
+            console.log(ary[1]);
+        
+        }
+
+        // javascript 基本觀念 PART2
+        {
+
+            // var 先宣告後使用，不要重複宣告
+            // 最好直接改用 let 變數(可改)
+            // const 常數 (不可改)
+
+            // function 的三種寫法
+
+            // 方法一
+            function myFunction() { 
+                // 執行內容
+                console.log('function!!!');
+                
+                // return 內容 (如果沒寫會出現 undefined)
+                return 'end'
+            }
+            
+            // 方法二
+            let obj = {
+                myFunction: function() {
+
+                }
+            }
+
+            // 方法三
+            let myFunction2 = function() {
+
+            }
+
+            /*
+               以一個 function 主要有三個部分要注意
+               1) 需要傳參數嗎？
+               2) 執行內容為何？
+               3) 需 return 值嗎？ 
+            */
+
+            function clickHandler() {
+                console.log('clickHandler this', this); // <div id="container2">...
+                // this 指的是呼叫這個 function 的對象
+
+                var self = this;
+                setTimeout(function(){
+                    console.log('setTimeout this', this); // window...
+                    console.log('setTimeout self', self); // <div id="container2">...
+                }, 0); 
+
+                // 只要包了第二層以後，this 會改變
+
+                setTimeout(() => {
+                    console.log('setTimeout arrow this', this); // <div id="container2">...
+                }, 0); 
+                // Arrow function 最大的特點就是：它不擁有自己的 this !!!!
+
+                document.querySelector('#container2').innerHTML = 'Ben';
+                // return false; 回值或中斷執行
+            }
+
+            document.querySelector('#container2').addEventListener('click', clickHandler);
+
+            function plus(a, b) {
+                console.log('plus this', this);
+                return a + b;
+            }
+
+            let obj2 = {
+                function1: function() {
+                    console.log(this); // {function1: f}
+                }
+            }
+            obj2.function1();
+            // 在物件裡面的 function 的 this 會再指回這個物件
+            // js 在不同的狀況下，this 會有不同的結果
+
+
+            // 判斷式 (多擇一)
+            const date = new Date();
+            const today = date.getDate(); //日期
+            console.log(today);
+            const day = date.getDay(); // 星期幾
+            console.log('day: ', day); 
+            
+            if (day === 2) {
+                console.log('eat rice');
+            } else if (today % 2 === 0) {
+                console.log('eat dumpling');
+            } else {
+                console.log('eat noddle');
+            }  // 多層判斷式，要從條件最小範圍的開始
+
+            let eat = day === 2 ? '水餃' : today % 2 === 0 ? '飯': '麵';
+            console.log(eat);
+
+            switch (day) {
+                case 1:
+                    console.log('今天星期一');
+                    break; // 如果沒有 break 就會全部做一次
+                case 2:
+                    console.log('今天星期二');
+                    break;
+                default:
+                    console.log('今天不是星期一也不是星期二');
+                    // 因為是最後一個，所以不用 break
+            }
+
+
+            // 迴圈 loop (同一件事要做很多次)
+            for(let i = 1; i <= 5; i++) {
+                console.log(i);
+                //  let 可以很有效的把你的參數控制在你要的位置，不會洩漏出去
+            }
+
+            let j = 0;
+            while (j <= 3) {
+                console.log('j:', j);
+                j++; // 如果沒有這行，會變成無窮迴圈，要小心!!!
+            }
+            
+            // while 的條件可以不一定是編號，可能是狀態、條件...
+            // 不定次數的，用 while 可能比較容易
+            let k = 0;
+            while (k < 0.5) {
+                k = Math.random();
+                console.log(k);
+            }
+
+            
+            
+            
+            
+            
+
+        }
+    </script>
+</body>
+</html>
