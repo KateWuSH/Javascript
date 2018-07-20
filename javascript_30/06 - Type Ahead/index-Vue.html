@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State" v-model="txt">
+    <ul class="suggestions">
+      <template v-if="txt && filterArry.length">
+        <li v-for="city in filterArry">
+          <span class="name" v-html="highLight(city)"></span>
+          <span class="population">{{parseInt(city.population).toLocaleString()}}</span>
+        </li>
+      </template>
+      <template v-else>
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </template>
+
+    </ul>
+  </form>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js'></script>
+  <script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    /* 
+       預設在 vue 裡面的每個 this，都會指向這個 vue；而箭頭函式沒有自己的 this，
+       所以都只會拿外層的這個 this 
+    */
+
+    /* 
+       單向綁定：資料動 -> 畫面動
+       雙向綁定：畫面動 -> 資料動
+       computed：用來處理比較複雜的資料，因 a 資料變動要產生 b 資料時，就可以在 computed 裡面進行
+    */
+
+    new Vue({
+      el: '.search-form',
+      // 當只有一個 component 時，data: 或 data(){} 沒差
+      data: {
+        cities: null,
+        txt: ''
+      },
+      computed: {
+        regexp() {
+          return new RegExp(this.txt, 'gi')
+        },
+        filterArry() {
+          return this.cities.filter(city => city.city.match(this.regexp) || city.state.match(this.regexp))
+        }
+      },
+      methods: {
+        highLight(city) {
+
+          let cityName = city.city.replace(this.regexp, `<span class="h1">${this.txt}</span>`);
+
+          let stateName = city.state.replace(this.regexp, `<span class="h1">${this.txt}</span>`);
+
+          return cityName + ', ' + stateName;
+        }
+      },
+      mounted() {
+        $.ajax({ url: endpoint }).done(res => this.cities = JSON.parse(res));
+      }
+    })
+
+  </script>
+
+</body>
+
+</html>

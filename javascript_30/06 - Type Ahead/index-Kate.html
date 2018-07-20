@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+  <script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    // 1) 取資料
+    // 2) 監聽 input
+    // 3) 拿輸入的字去資料裡篩選
+    // 4) 把篩選出來的資料放入 HTML
+
+    let cities = [];
+
+    fetch(endpoint).then(function (res) {
+      // res.json().then((obj) => (cities = obj, console.log(cities)))
+      res.json().then((obj) => (cities = obj))
+    })
+
+    /* 
+       鍵盤事件 
+       change 要 enter 之後才會觸發，無法即時反應
+       keydown 會有重複觸發的問題
+    */
+
+    let input = document.querySelector('.search');
+    input.addEventListener('keyup', function () {
+      // 取得 input 輸入字`；trim 為消除前後的空白
+      let filter = this.value.trim();
+
+      /* 
+        正則表達式：可用於所有文本搜尋和文本替換的操作
+        g：執行全局配對
+        i：執行對大小寫不敏感的配對
+        match：是正則表達式中用來配對搜尋字串的方法 
+      */
+
+      // 配對字符
+      let regexp = new RegExp(filter, 'gi')
+
+      let filterArray = cities.filter(function (city) {
+        return city.city.match(regexp) || city.state.match(regexp)
+      })
+
+      // 將資料產出變成 HTML。map 會產生一個新的陣列； foreach 不會
+      let html = filterArray.map(function (city) {
+
+        let cityName = city.city.replace(regexp, `<span class="h1">${filter}</span>`);
+
+        let stateName = city.state.replace(regexp, `<span class="h1">${filter}</span>`);
+
+        return `
+          <li>
+            <span class="name">${cityName}, ${stateName}</span>
+            <span class="population">${parseInt(city.population).toLocaleString()}</span >
+          </li >
+        `;
+      }).join('');
+
+      // 將 HTML 塞入，要特別注意 innerHTML 的使用，從外部來的資料最好盡量不要直接寫入，避免遭到攻擊
+      document.querySelector('.suggestions').innerHTML = html;
+    });
+
+
+
+    // Jquery ajax 取資料
+    // $.ajax({
+    //   url: endpoint
+    // }).done(function (res) {
+    //   cities = JSON.parse(res);
+    //   console.log(cities);
+    // })
+
+  </script>
+</body>
+
+</html>
