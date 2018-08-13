@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Motion 3</title>
+  <style>
+    h1 {
+      text-align: center;
+      font-family: '微軟正黑體', Arial, Helvetica, sans-serif;
+    }
+
+    #stage {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Vx = V0 + AT </h1>
+  <h1>X = X0 + Vx</h1>
+  <h1>Vy = V0 + AT </h1>
+  <h1>Y = Y0 + Vy</h1>
+  <canvas id="stage" width="800" height="600"></canvas>
+
+  <script>
+    let canvas = document.querySelector('#stage');
+    let ctx = canvas.getContext('2d');
+    let time = 0;
+
+    let ball = {
+      position: {
+        x: 0,
+        y: 0
+      },
+      radius: 10,
+      velocity: {
+        x: 200,
+        y: 150
+      },
+      acceleration: {
+        x: 20,
+        y: 15
+      }
+    }
+
+    // 2) 算座標
+    function motion(offset) {
+
+      ball.velocity.x += ball.acceleration.x;
+      ball.position.x += ball.velocity.x / 1000 * offset;
+      ball.velocity.y += ball.acceleration.y;
+      ball.position.y += ball.velocity.y / 1000 * offset;
+
+    }
+
+
+    // 3) 畫一顆球
+    function draw() {
+
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+    }
+
+
+    // 1) timer
+    function render(t) {
+
+      ctx.clearRect(0, 0, 800, 600);
+      motion(t - time);
+      draw();
+      time = t;
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+  </script>
+</body>
+
+</html>

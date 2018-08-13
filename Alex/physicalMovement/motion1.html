@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Motion 1</title>
+  <style>
+    h1 {
+      text-align: center;
+      font-family: '微軟正黑體', Arial, Helvetica, sans-serif;
+    }
+
+    #stage {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>X = X0 + V 等速運動 (linear)</h1>
+  <canvas id="stage" width="800" height="600"></canvas>
+
+  <script>
+    let canvas = document.querySelector('#stage');
+    let ctx = canvas.getContext('2d');
+    let time = 0;
+
+    let ball = {
+      position: {
+        x: 0,
+        y: 300
+      },
+      radius: 10,
+      velocity: 100,
+    }
+
+    // 2) 算座標
+    function motion(offset) {
+
+      ball.position.x += ball.velocity / 1000 * offset;
+      // ball.position.x = ball.position.x + ball.velocity; (X = X0 + V)
+
+    }
+
+
+    // 3) 畫一顆球
+    function draw() {
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, Math.PI * 2);
+      // canvas 的角度是用弧度來計算：180 = Math.PI；360 = 2 * Math.PI
+      ctx.fill();
+    }
+
+
+    // 1) timer
+    function render(t) {
+      // console.log(t - time); // 時間間隔，大概在 16-17。16/1000 = 62.5FPS， 17/100 = 58.8FPS ，這個是硬體觸發的螢幕更新率
+
+      ctx.clearRect(0, 0, 800, 600); // 如果想看軌跡圖，可以把清除關掉
+      // canvas.width = canvas.width; // 調整 canvas 的寬高，會觸發它清除 context 
+      motion(t - time);
+      draw();
+      time = t;
+      // setTimeout(render, 1000 / 60); 
+      // 因為只會跑一次，所以大多會在自己裡面再呼叫自己
+      requestAnimationFrame(render);
+    }
+
+    // setInterval(render, 1000 / 60); // 60FPS(每秒60次)，會有效率的問題
+    // setTimeout：跑一次；setInterval：跑多次
+    requestAnimationFrame(render); // 目前流行，用來做動畫或畫面更新的計時器
+
+  </script>
+</body>
+
+</html>
