@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Motion 6</title>
+  <style>
+    h1 {
+      text-align: center;
+      font-family: '微軟正黑體', Arial, Helvetica, sans-serif;
+    }
+
+    #stage {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Shoot Shoot</h1>
+  <canvas id="stage" width="800" height="600"></canvas>
+
+  <script>
+    let canvas = document.querySelector('#stage');
+    let ctx = canvas.getContext('2d');
+    let time = 0;
+
+    let balls = []
+
+    let mouse = {
+      x: 400,
+      y: 300
+    };
+
+    function motion(offset) {
+
+      balls.forEach((item, index) => {
+        item.position.x += item.velocity * Math.cos(item.angle) / 1000 * offset;
+        item.position.y += item.velocity * Math.sin(item.angle) / 1000 * offset;
+
+        // 生命週期：超過畫布範圍就回收
+        if (item.position.x < 0 || item.position.x > 800 || item.position.y < 0 || item.position.y > 600) {
+          item.active = false;
+        }
+
+        if (item.active) {
+          ctx.fillStyle = 'black';
+          ctx.beginPath();
+          ctx.arc(item.position.x, item.position.y, item.radius, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          console.log('delete');
+          delete balls.splice(index, 1);
+        }
+
+      })
+
+    }
+
+
+    function render(t) {
+
+      // ctx.clearRect(0, 0, 800, 600);
+      canvas.width = canvas.width;
+      motion(t - time);
+      time = t;
+      // 畫出參考線
+      ctx.moveTo(400, 300);
+      ctx.lineTo(mouse.x, mouse.y);
+      ctx.stroke()
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+    canvas.addEventListener('mousemove', function (e) {
+      mouse = {
+        x: e.offsetX,
+        y: e.offsetY
+      }
+    })
+
+    canvas.addEventListener('click', function (e) {
+      mouse = {
+        x: e.offsetX,
+        y: e.offsetY
+      }
+
+      let mx = mouse.x - 400; // 鄰邊
+      let my = mouse.y - 300; // 對邊
+      // 斜邊 = Math.sqrt(mx * mx + my * my)
+
+      let ball = {
+        active: true,
+        angle: Math.atan(my / mx),
+        position: {
+          x: 400,
+          y: 300
+        },
+        velocity: 300,
+        radius: 10
+      }
+
+      if (mx < 0) {
+        ball.velocity *= -1;
+      }
+
+      balls.push(ball);
+
+    })
+
+    /*
+      三角函數
+      sin(θ)= 對/斜 = b/c => y
+      cos(θ)= 鄰/斜 = a/c => x
+      tan(θ)= 對/鄰 = b/a => a * tan(b/a) = θ 常用來求角度
+      畢式定理
+      a2 + b2 = c2
+    */
+
+  </script>
+</body>
+
+</html>

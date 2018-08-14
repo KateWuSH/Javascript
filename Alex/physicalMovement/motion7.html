@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Motion 7</title>
+  <style>
+    h1 {
+      text-align: center;
+      font-family: '微軟正黑體', Arial, Helvetica, sans-serif;
+    }
+
+    #stage {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Fireworks</h1>
+  <canvas id="stage" width="800" height="600"></canvas>
+
+  <script>
+    let canvas = document.querySelector('#stage');
+    let ctx = canvas.getContext('2d');
+    let time = 0;
+
+    let balls = []
+
+    let mouse = {
+      x: 400,
+      y: 300
+    };
+
+    function motion(offset) {
+      balls.forEach((item, index) => {
+        item.life--
+
+        if (item.life) {
+          item.velocity.x += item.acceleration.x;
+          item.position.x += item.velocity.x / 1000 * offset;
+          item.acceleration.y += 0.5;
+          item.velocity.y += item.acceleration.y;
+          item.position.y += item.velocity.y / 1000 * offset;
+          ctx.fillStyle = item.color;
+          ctx.beginPath();
+          ctx.arc(item.position.x, item.position.y, item.radius, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          delete balls.splice(index, 1)
+        }
+      })
+    }
+
+    function render(t) {
+
+      // ctx.clearRect(0, 0, 800, 600);
+      canvas.width = canvas.width;
+      motion(t - time);
+      time = t;
+      // 畫出參考線
+      ctx.moveTo(400, 300);
+      ctx.lineTo(mouse.x, mouse.y);
+      // ctx.stroke()
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+    canvas.addEventListener('mousemove', function (e) {
+      mouse = {
+        x: e.offsetX,
+        y: e.offsetY
+      }
+    })
+
+    canvas.addEventListener('click', function (e) {
+      mouse = {
+        x: e.offsetX,
+        y: e.offsetY
+      }
+
+      let angle;
+      // 顏色寫在外面，這發煙火會顯示同一色
+      let color = "#" + parseInt(Math.random() * (256 * 256 * 256 - 1)).toString(16);
+      for (let i = 0; i < 87; i++) {
+        angle = Math.random() * Math.PI * 2;
+        // 顏色寫在外面，這發煙火的每顆球可能都不同色
+        // let color = "#" + parseInt(Math.random() *  (256 * 256 * 256 - 1)).toString(16);
+        balls.push({
+          life: 100,
+          position: {
+            x: mouse.x,
+            y: mouse.y
+          },
+          velocity: {
+            x: 0,
+            y: 0
+          },
+          acceleration: {
+            x: Math.cos(angle) * (Math.random() * 10 + 10), // -10 ~ 10
+            y: Math.sin(angle) * (Math.random() * 10 + 10)
+          },
+          radius: 5,
+          color: color
+        })
+      }
+
+    })
+
+  </script>
+</body>
+
+</html>
